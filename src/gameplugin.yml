@@ -1,0 +1,33 @@
+main-class: "me.ampayne2.Hunter.Hunter"
+description: "The official Ultimate Games Hunter/Infected game."
+version: "1.0"
+author: "ampayne2"
+pack: "me.ampayne2.Hunter"
+scoreTypeName: "Kills:Deaths"
+secondaryScoreTypeName: "Wins"
+scoreType: "GOOD_BAD"
+secondaryScoreType: "POINTS_HIGHER"
+playerType: "CONFIGUREABLE"
+DefaultSettings:
+  MinPlayers: 4
+  MaxPlayers: 16
+  Players:
+    Store-Inventory: true
+    Store-Armor: true
+    Store-Exp: true
+    Store-Effects: true
+    Store-Gamemode: true
+  Reset-After-Match: true
+  Allow-Explosion-Damage: true
+  Allow-Explosion-Block-Breaking: false
+  Allow-Building: false
+  Allow-Breaking: false
+Instructions:
+- "If you are a hunter, exterminate the civilians.\nIf you are a civilian, stay alive."
+Messages:
+  starthunter: "&4You are the Hunter! Exterminate the Civilians."
+  starthunted: "&4You are a Civilian! Stay alive."
+  hunter: "&4You are now a Hunter! Exterminate the Civilians."
+  killed: "&4%Killer% killed %Killed%!"
+  hunterswin: "&4The Hunters have exterminated the Civilians!"
+  huntedwin: "&4The Hunters have failed to exterminate the Civilians!"
