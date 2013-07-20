@@ -11,6 +11,10 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
-        <javaElement handleIdentifier="=Hunter"/>
+        <javaElement handleIdentifier="=Hunter/src"/>
+        <file path="/Hunter/.project"/>
+        <file path="/Hunter/.gitignore"/>
+        <file path="/Hunter/.classpath"/>
+        <file path="/Hunter/export.jardesc"/>
     </selectedElements>
 </jardesc>
