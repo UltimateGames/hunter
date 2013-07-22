@@ -61,7 +61,11 @@ public class Hunter extends GamePlugin implements Listener {
 	}
 
 	public Boolean isStartPossible(Arena arena) {
-		return true;
+		if (arena.getStatus() == ArenaStatus.OPEN) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public Boolean startArena(Arena arena) {
@@ -69,74 +73,46 @@ public class Hunter extends GamePlugin implements Listener {
 	}
 
 	public Boolean beginArena(Arena arena) {
-		// create countdown
 		ultimateGames.getCountdownManager().createEndingCountdown(arena, 300, true);
 
-		// reset hunters and civilians list for the arena
 		if (!hunters.isEmpty() && hunters.containsKey(arena)) {
 			hunters.remove(arena);
 		}
 		if (!civilians.isEmpty() && civilians.containsKey(arena)) {
 			civilians.remove(arena);
 		}
-
-		// get a random person and make them a hunter
-		Random generator = new Random();
-		String hunterName = arena.getPlayers().get(generator.nextInt(arena.getPlayers().size()));
-		ArrayList<String> hunter = new ArrayList<String>();
-		hunter.add(hunterName);
-		hunters.put(arena, hunter);
-		ultimateGames.getMessageManager().sendGameMessage(game, hunterName, "starthunter");
-
-		// get everyone else and make them civilians
-		ArrayList<String> civilian = new ArrayList<String>();
-		for (String playerName : arena.getPlayers()) {
-			if (!playerName.equals(hunterName)) {
-				civilian.add(playerName);
-				HashMap<String, String> replace2 = new HashMap<String, String>();
-				replace2.put(" ", " ");
-				ultimateGames.getMessageManager().sendGameMessage(game, playerName, "starthunted");
-			}
-		}
-		civilians.put(arena, civilian);
-
-		// unlock all spawnpoints
+		
 		for (SpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
 			spawnPoint.lock(false);
 		}
 
-		// teleport hunter to spawnpoint 0, and civilians to random spawnpoints
-		ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(hunterName);
+		ArrayList<String> hunter = new ArrayList<String>();
+		Random generator = new Random();
+		String hunterName = arena.getPlayers().get(generator.nextInt(arena.getPlayers().size()));
 		Player theHunter = Bukkit.getPlayer(hunterName);
-		for (String civilianName : civilians.get(arena)) {
-			ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(civilianName);
-		}
-
-		// give hunter speed 2, jump boost 2, 1 arrow, and power 5 infinity 1 unbreaking 10 bow, and some food
-		theHunter.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
-		theHunter.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
-		ItemStack bow = new ItemStack(Material.BOW, 1);
-		bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 10);
-		bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
-		bow.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-		ItemStack arrow = new ItemStack(Material.ARROW, 1);
-		ItemStack food = new ItemStack(Material.COOKED_BEEF, 8);
+		hunter.add(hunterName);
+		hunters.put(arena, hunter);
+		ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(hunterName);
 		theHunter.getInventory().clear();
-		theHunter.getInventory().addItem(bow, arrow, food);
+		equipHunter(theHunter);
 		theHunter.setHealth(20.0);
 		theHunter.setFoodLevel(20);
+		ultimateGames.getMessageManager().sendGameMessage(game, hunterName, "starthunter");
 
-		// give civilians diamond sword with sharpness 5, 1 golden apple, and some food
-		for (String civilianName : civilians.get(arena)) {
-			Player aCivilian = Bukkit.getPlayer(civilianName);
-			ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
-			sword.addEnchantment(Enchantment.DAMAGE_ALL, 5);
-			ItemStack apple = new ItemStack(Material.GOLDEN_APPLE, 1);
-			aCivilian.getInventory().clear();
-			aCivilian.getInventory().addItem(sword, apple, food);
-			aCivilian.setHealth(20.0);
-			aCivilian.setFoodLevel(20);
+		ArrayList<String> civilian = new ArrayList<String>();
+		for (String playerName : arena.getPlayers()) {
+			if (!playerName.equals(hunterName)) {
+				civilian.add(playerName);
+				ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(playerName);
+				Player aCivilian = Bukkit.getPlayer(playerName);
+				aCivilian.getInventory().clear();
+				equipCivilian(aCivilian);
+				aCivilian.setHealth(20.0);
+				aCivilian.setFoodLevel(20);
+				ultimateGames.getMessageManager().sendGameMessage(game, playerName, "starthunted");
+			}
 		}
+		civilians.put(arena, civilian);
 		
 		new Radar(ultimateGames, arena, this);
 		return true;
@@ -160,8 +136,8 @@ public class Hunter extends GamePlugin implements Listener {
 				removeHunters.add(hunterName);
 			}
 			for (String hunterName : removeHunters) {
-				ultimateGames.getPlayerManager().removePlayerFromArena(hunterName, arena, false);
 				Bukkit.getPlayer(hunterName).getInventory().clear();
+				ultimateGames.getPlayerManager().removePlayerFromArena(hunterName, arena, false);
 			}
 		}
 		if (civilians.get(arena).size() > 0) {
@@ -170,8 +146,8 @@ public class Hunter extends GamePlugin implements Listener {
 				removeCivilians.add(civilianName);
 			}
 			for (String civilianName : removeCivilians) {
-				ultimateGames.getPlayerManager().removePlayerFromArena(civilianName, arena, false);
 				Bukkit.getPlayer(civilianName).getInventory().clear();
+				ultimateGames.getPlayerManager().removePlayerFromArena(civilianName, arena, false);
 			}
 		}
 		arena.setStatus(ArenaStatus.OPEN);
@@ -196,9 +172,7 @@ public class Hunter extends GamePlugin implements Listener {
 		if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena) && arena.getStatus() == ArenaStatus.OPEN) {
 			ultimateGames.getCountdownManager().createStartingCountdown(arena, 30);
 		}
-		SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
-		spawnPoint.lock(false);
-		spawnPoint.teleportPlayer(playerName);
+		ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(playerName);
 		Player player = Bukkit.getPlayer(playerName);
 		player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
 		player.updateInventory();
@@ -207,24 +181,24 @@ public class Hunter extends GamePlugin implements Listener {
 
 	public Boolean removePlayer(Arena arena, String playerName) {
 		Player player = Bukkit.getPlayer(playerName);
+		player.setLevel(0);
 		if (player.hasPotionEffect(PotionEffectType.SPEED)) {
 			player.removePotionEffect(PotionEffectType.SPEED);
 		}
 		if (player.hasPotionEffect(PotionEffectType.JUMP)) {
 			player.removePotionEffect(PotionEffectType.JUMP);
 		}
-		player.setLevel(0);
 		if (hunters.containsKey(arena) && hunters.get(arena).contains(playerName)) {
 			hunters.get(arena).remove(playerName);
 			if (hunters.get(arena).size() == 0) {
-				endArena(arena);
 				ultimateGames.getCountdownManager().stopEndingCountdown(arena);
+				endArena(arena);
 			}
 		} else if (civilians.containsKey(arena) && civilians.get(arena).contains(playerName)) {
 			civilians.get(arena).remove(playerName);
 			if (civilians.get(arena).size() == 0) {
-				endArena(arena);
 				ultimateGames.getCountdownManager().stopEndingCountdown(arena);
+				endArena(arena);
 			}
 		}
 		if (arena.getPlayers().size() < arena.getMinPlayers() && ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
@@ -251,16 +225,17 @@ public class Hunter extends GamePlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDamageByPlayer(EntityDamageByEntityEvent event) {
+		if ((event.getEntity() instanceof Player)) {
+			return;
+		}
+		Player damaged = (Player) event.getEntity();
 		Player damager;
-		Player damaged;
-		if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+		if (event.getDamager() instanceof Player) {
 			damager = (Player) event.getDamager();
-			damaged = (Player) event.getEntity();
-		} else if (event.getDamager() instanceof Arrow && event.getEntity() instanceof Player) {
+		} else if (event.getDamager() instanceof Arrow) {
 			Arrow arrow = (Arrow) event.getDamager();
 			if (arrow.getShooter() instanceof Player) {
 				damager = (Player) arrow.getShooter();
-				damaged = (Player) event.getEntity();
 			} else {
 				return;
 			}
@@ -269,26 +244,34 @@ public class Hunter extends GamePlugin implements Listener {
 		}
 		String damagerName = damager.getName();
 		String damagedName = damaged.getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(damagerName) && !ultimateGames.getPlayerManager().isPlayerInArena(damagedName)) {
+		if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName).equals(ultimateGames.getPlayerManager().isPlayerInArena(damagedName))) {
 			event.setCancelled(true);
 			return;
-		} else if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName) && ultimateGames.getPlayerManager().isPlayerInArena(damagedName)) {
-			event.setCancelled(true);
-			return;
-		} else if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName) && !ultimateGames.getPlayerManager().isPlayerInArena(damagerName)) {
+		} else if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName)) {
 			return;
 		}
 		Arena damagerArena = ultimateGames.getPlayerManager().getPlayerArena(damagerName);
 		Arena damagedArena = ultimateGames.getPlayerManager().getPlayerArena(damagedName);
-		if (!damagerArena.equals(damagedArena) || !damagerArena.getGame().equals(game)) {
+		if (!damagerArena.equals(damagedArena)) {
+			return;
+		} else if (!hunters.containsKey(damagerArena) || !hunters.containsKey(damagerArena)) {
 			return;
 		} else if (damagerArena.getStatus() != ArenaStatus.RUNNING) {
 			event.setCancelled(true);
 			return;
-		} else if (hunters.containsKey(damagerArena) && hunters.get(damagerArena).contains(damagerName) && hunters.get(damagerArena).contains(damagedName)) {
-			event.setCancelled(true);
+		} else if (isPlayerHunter(damagerArena, damagerName) && isPlayerCivilian(damagerArena, damagedName)) {
+			if (event.getDamager() instanceof Arrow) {
+				event.setCancelled(true);
+				damaged.setHealth(0.0);
+			}
 			return;
-		} else if (civilians.containsKey(damagerArena) && civilians.get(damagerArena).contains(damagerName) && civilians.get(damagerArena).contains(damagedName)) {
+		} else if (isPlayerCivilian(damagerArena, damagerName) && isPlayerHunter(damagerArena, damagedName)) {
+			if (event.getDamager() instanceof Arrow) {
+				event.setCancelled(true);
+				damaged.setHealth(0.0);
+			}
+			return;
+		} else {
 			event.setCancelled(true);
 			return;
 		}
@@ -307,26 +290,13 @@ public class Hunter extends GamePlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		final Player player = event.getPlayer();
+		Player player = event.getPlayer();
 		String playerName = player.getName();
 		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
 			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
 			if (arena.getGame().equals(game) && arena.getStatus() == ArenaStatus.RUNNING) {
 				event.setRespawnLocation(ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).getLocation());
-				ItemStack bow = new ItemStack(Material.BOW, 1);
-				bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 10);
-				bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
-				bow.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-				ItemStack arrow = new ItemStack(Material.ARROW, 1);
-				ItemStack food = new ItemStack(Material.COOKED_BEEF, 8);
-				player.getInventory().addItem(bow, arrow, food);
-				Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
-					@Override
-					public void run() {
-						player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
-						player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
-					}
-				}, 40L);
+				equipHunter(player);
 			}
 		}
 	}
@@ -356,23 +326,7 @@ public class Hunter extends GamePlugin implements Listener {
 					spawnPoint.lock(false);
 					spawnPoint.teleportPlayer(playerName);
 				}
-				Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
-					@Override
-					public void run() {
-						try {
-							Object nmsPlayer = player.getClass().getMethod("getHandle").invoke(player);
-
-							Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".Packet205ClientCommand").newInstance();
-							packet.getClass().getField("a").set(packet, 1);
-
-							Object con = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
-							con.getClass().getMethod("a", packet.getClass()).invoke(con, packet);
-						} catch (Throwable e) {
-							ultimateGames.getMessageManager().debug((Exception) e);
-						}
-					}
-				}, 1L);
-
+				ultimateGames.getUtils().autoRespawn(player);
 			}
 		}
 	}
@@ -413,6 +367,47 @@ public class Hunter extends GamePlugin implements Listener {
 		} else {
 			return null;
 		}
+	}
+	
+	public Boolean isPlayerHunter(Arena arena, String playerName) {
+		if (hunters.containsKey(arena) && hunters.get(arena).contains(playerName)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public Boolean isPlayerCivilian(Arena arena, String playerName) {
+		if (civilians.containsKey(arena) && civilians.get(arena).contains(playerName)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public void equipHunter(final Player player) {
+		ItemStack bow = new ItemStack(Material.BOW, 1);
+		bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 10);
+		bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
+		bow.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+		ItemStack arrow = new ItemStack(Material.ARROW, 1);
+		ItemStack food = new ItemStack(Material.COOKED_BEEF, 8);
+		player.getInventory().addItem(bow, arrow, food);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+			@Override
+			public void run() {
+				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
+			}
+		}, 40L);
+	}
+	
+	public void equipCivilian(Player player) {
+		ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
+		sword.addEnchantment(Enchantment.DAMAGE_ALL, 5);
+		ItemStack apple = new ItemStack(Material.GOLDEN_APPLE, 1);
+		ItemStack food = new ItemStack(Material.COOKED_BEEF, 8);
+		player.getInventory().addItem(sword, apple, food);
 	}
 
 }
