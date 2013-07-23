@@ -225,7 +225,7 @@ public class Hunter extends GamePlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDamageByPlayer(EntityDamageByEntityEvent event) {
-		if ((event.getEntity() instanceof Player)) {
+		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
 		Player damaged = (Player) event.getEntity();
