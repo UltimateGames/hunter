@@ -172,7 +172,9 @@ public class Hunter extends GamePlugin implements Listener {
 		if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena) && arena.getStatus() == ArenaStatus.OPEN) {
 			ultimateGames.getCountdownManager().createStartingCountdown(arena, 30);
 		}
-		ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(playerName);
+		SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
+		spawnPoint.lock(false);
+		spawnPoint.teleportPlayer(playerName);
 		Player player = Bukkit.getPlayer(playerName);
 		player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
 		player.updateInventory();
