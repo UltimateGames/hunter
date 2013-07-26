@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
@@ -25,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import me.ampayne2.UltimateGames.UltimateGames;
+import me.ampayne2.UltimateGames.API.ArenaScoreboard;
 import me.ampayne2.UltimateGames.API.GamePlugin;
 import me.ampayne2.UltimateGames.Arenas.Arena;
 import me.ampayne2.UltimateGames.Enums.ArenaStatus;
@@ -115,6 +117,18 @@ public class Hunter extends GamePlugin implements Listener {
 		civilians.put(arena, civilian);
 		
 		new Radar(ultimateGames, arena, this);
+		
+		for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+			ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, scoreBoard.getName());
+		}
+		ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, game.getGameDescription().getName());
+		for (String playerName : arena.getPlayers()) {
+			scoreBoard.addPlayer(playerName);
+		}
+		scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", 1);
+		scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
+		scoreBoard.setVisible(true);
+		
 		return true;
 	}
 
@@ -150,8 +164,8 @@ public class Hunter extends GamePlugin implements Listener {
 				ultimateGames.getPlayerManager().removePlayerFromArena(civilianName, arena, false);
 			}
 		}
-		arena.setStatus(ArenaStatus.OPEN);
-		ultimateGames.getUGSignManager().updateLobbySignsOfArena(arena);
+		ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, game.getGameDescription().getName());
+		ultimateGames.getArenaManager().openArena(arena);
 		return true;
 	}
 
@@ -194,13 +208,19 @@ public class Hunter extends GamePlugin implements Listener {
 			hunters.get(arena).remove(playerName);
 			if (hunters.get(arena).size() == 0) {
 				ultimateGames.getCountdownManager().stopEndingCountdown(arena);
-				endArena(arena);
+				ultimateGames.getArenaManager().endArena(arena);
 			}
 		} else if (civilians.containsKey(arena) && civilians.get(arena).contains(playerName)) {
 			civilians.get(arena).remove(playerName);
 			if (civilians.get(arena).size() == 0) {
 				ultimateGames.getCountdownManager().stopEndingCountdown(arena);
-				endArena(arena);
+				ultimateGames.getArenaManager().endArena(arena);
+			}
+		}
+		for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+			if (scoreBoard.getName().equals(game.getGameDescription())) {
+				scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
+				scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
 			}
 		}
 		if (arena.getPlayers().size() < arena.getMinPlayers() && ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
@@ -319,9 +339,15 @@ public class Hunter extends GamePlugin implements Listener {
 							ultimateGames.getMessageManager().sendGameMessage(game, playerName, "hunter");
 						}
 						if (civilians.get(arena).size() == 0) {
-							endArena(arena);
+							ultimateGames.getArenaManager().endArena(arena);
 						}
-
+						for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+							if (scoreBoard.getName().equals(game.getGameDescription())) {
+								scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
+								scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
+							}
+						}
+						ultimateGames.getMessageManager().broadcastReplacedGameMessageToArena(game, arena, "killed", playerName);
 					}
 				} else {
 					SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
