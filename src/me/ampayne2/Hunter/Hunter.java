@@ -229,12 +229,8 @@ public class Hunter extends GamePlugin implements Listener {
 		return true;
 	}
 
-	public void onGameCommand(String command, CommandSender sender, String[] args) {
-
-	}
-
-	public void onArenaCommand(Arena arena, String command, CommandSender sender, String[] args) {
-
+	public Boolean onArenaCommand(Arena arena, String command, CommandSender sender, String[] args) {
+		return true;
 	}
 
 	public void handleInputSignCreate(Arena arena, Sign sign, String label) {
@@ -284,13 +280,13 @@ public class Hunter extends GamePlugin implements Listener {
 		} else if (isPlayerHunter(damagerArena, damagerName) && isPlayerCivilian(damagerArena, damagedName)) {
 			if (event.getDamager() instanceof Arrow) {
 				event.setCancelled(true);
-				damaged.setHealth(0.0);
+				damaged.setHealth((damaged.getHealth() - event.getDamage()) > 0.0 ? damaged.getHealth() - event.getDamage() : 0.0);
 			}
 			return;
 		} else if (isPlayerCivilian(damagerArena, damagerName) && isPlayerHunter(damagerArena, damagedName)) {
 			if (event.getDamager() instanceof Arrow) {
 				event.setCancelled(true);
-				damaged.setHealth(0.0);
+				damaged.setHealth((damaged.getHealth() - event.getDamage()) > 0.0 ? damaged.getHealth() - event.getDamage() : 0.0);
 			}
 			return;
 		} else {
