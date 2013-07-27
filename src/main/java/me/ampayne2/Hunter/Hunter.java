@@ -55,10 +55,14 @@ public class Hunter extends GamePlugin implements Listener {
 	}
 
 	public Boolean loadArena(Arena arena) {
+		hunters.put(arena, new ArrayList<String>());
+		civilians.put(arena, new ArrayList<String>());
 		return true;
 	}
 
 	public Boolean unloadArena(Arena arena) {
+		hunters.remove(arena);
+		civilians.remove(arena);
 		return true;
 	}
 
