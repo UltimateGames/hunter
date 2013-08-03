@@ -2,9 +2,9 @@ package me.ampayne2.Hunter;
 
 import java.util.ArrayList;
 
-import me.ampayne2.UltimateGames.UltimateGames;
-import me.ampayne2.UltimateGames.Arenas.Arena;
-import me.ampayne2.UltimateGames.Enums.ArenaStatus;
+import me.ampayne2.ultimategames.UltimateGames;
+import me.ampayne2.ultimategames.arenas.Arena;
+import me.ampayne2.ultimategames.enums.ArenaStatus;
 
 import org.bukkit.scheduler.BukkitRunnable;
 

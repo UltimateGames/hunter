@@ -4,6 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import me.ampayne2.ultimategames.UltimateGames;
+import me.ampayne2.ultimategames.api.ArenaScoreboard;
+import me.ampayne2.ultimategames.api.GamePlugin;
+import me.ampayne2.ultimategames.arenas.Arena;
+import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.games.Game;
+import me.ampayne2.ultimategames.players.SpawnPoint;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,15 +33,8 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import me.ampayne2.UltimateGames.UltimateGames;
-import me.ampayne2.UltimateGames.API.ArenaScoreboard;
-import me.ampayne2.UltimateGames.API.GamePlugin;
-import me.ampayne2.UltimateGames.Arenas.Arena;
-import me.ampayne2.UltimateGames.Enums.ArenaStatus;
-import me.ampayne2.UltimateGames.Games.Game;
-import me.ampayne2.UltimateGames.Players.SpawnPoint;
 
-public class Hunter extends GamePlugin implements Listener {
+public class Hunter extends GamePlugin {
 
 	private UltimateGames ultimateGames;
 	private Game game;
