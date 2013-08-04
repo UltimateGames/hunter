@@ -1,4 +1,4 @@
-package me.ampayne2.Hunter;
+package main.java.me.ampayne2.Hunter;
 
 import java.util.ArrayList;
 

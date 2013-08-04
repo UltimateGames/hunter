@@ -1,4 +1,4 @@
-package me.ampayne2.Hunter;
+package main.java.me.ampayne2.Hunter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,25 +9,25 @@ import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.enums.SignType;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.players.SpawnPoint;
+import me.ampayne2.ultimategames.signs.UGSign;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -238,11 +238,11 @@ public class Hunter extends GamePlugin {
 		return true;
 	}
 
-	public void handleInputSignCreate(Arena arena, Sign sign, String label) {
+	public void handleUGSignCreate(UGSign ugSign, SignType signType) {
 
 	}
 
-	public void handleInputSignClick(Arena arena, Sign sign, String label, PlayerInteractEvent event) {
+	public void handleInputSignTrigger(UGSign ugSign, SignType signType, Event event) {
 
 	}
 
