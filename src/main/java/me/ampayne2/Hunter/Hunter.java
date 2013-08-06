@@ -28,6 +28,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -138,16 +139,10 @@ public class Hunter extends GamePlugin {
 	}
 
 	public Boolean endArena(Arena arena) {
-		if (ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
-			ultimateGames.getCountdownManager().stopStartingCountdown(arena);
-		}
-		if (ultimateGames.getCountdownManager().isEndingCountdownEnabled(arena)) {
-			ultimateGames.getCountdownManager().stopEndingCountdown(arena);
-		}
 		if (hunters.get(arena).size() > 0 && civilians.get(arena).size() == 0) {
-			ultimateGames.getMessageManager().broadcastGameMessageToArena(game, arena, "hunterswin");
+			ultimateGames.getMessageManager().broadcastGameMessage(game,  "hunterswin");
 		} else {
-			ultimateGames.getMessageManager().broadcastGameMessageToArena(game, arena, "huntedwin");
+			ultimateGames.getMessageManager().broadcastGameMessage(game,  "huntedwin");
 		}
 		if (hunters.get(arena).size() > 0) {
 			ArrayList<String> removeHunters = new ArrayList<String>();
@@ -202,7 +197,6 @@ public class Hunter extends GamePlugin {
 
 	public Boolean removePlayer(Arena arena, String playerName) {
 		Player player = Bukkit.getPlayer(playerName);
-		player.setLevel(0);
 		if (player.hasPotionEffect(PotionEffectType.SPEED)) {
 			player.removePotionEffect(PotionEffectType.SPEED);
 		}
@@ -212,13 +206,11 @@ public class Hunter extends GamePlugin {
 		if (hunters.containsKey(arena) && hunters.get(arena).contains(playerName)) {
 			hunters.get(arena).remove(playerName);
 			if (hunters.get(arena).size() == 0) {
-				ultimateGames.getCountdownManager().stopEndingCountdown(arena);
 				ultimateGames.getArenaManager().endArena(arena);
 			}
 		} else if (civilians.containsKey(arena) && civilians.get(arena).contains(playerName)) {
 			civilians.get(arena).remove(playerName);
 			if (civilians.get(arena).size() == 0) {
-				ultimateGames.getCountdownManager().stopEndingCountdown(arena);
 				ultimateGames.getArenaManager().endArena(arena);
 			}
 		}
@@ -227,9 +219,6 @@ public class Hunter extends GamePlugin {
 				scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
 				scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
 			}
-		}
-		if (arena.getPlayers().size() < arena.getMinPlayers() && ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
-			ultimateGames.getCountdownManager().stopStartingCountdown(arena);
 		}
 		return true;
 	}
@@ -245,9 +234,56 @@ public class Hunter extends GamePlugin {
 	public void handleInputSignTrigger(UGSign ugSign, SignType signType, Event event) {
 
 	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDamageByPlayer(EntityDamageByEntityEvent event) {
+	
+	@Override
+	public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
+		final Player player = event.getEntity();
+		String playerName = player.getName();
+		if (arena.getStatus() == ArenaStatus.RUNNING) {
+			event.getDrops().clear();
+			if (civilians.containsKey(arena) && civilians.get(arena).contains(playerName)) {
+				civilians.get(arena).remove(playerName);
+				if (hunters.containsKey(arena)) {
+					hunters.get(arena).add(playerName);
+					ultimateGames.getMessageManager().sendGameMessage(game, playerName, "hunter");
+				}
+				if (civilians.get(arena).size() == 0) {
+					ultimateGames.getArenaManager().endArena(arena);
+				}
+				for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+					if (scoreBoard.getName().equals(game.getGameDescription().getName())) {
+						scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
+						scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
+					}
+				}
+					ultimateGames.getMessageManager().broadcastReplacedGameMessageToArena(game, arena, "killed", playerName);
+			}
+		} else {
+			SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
+			spawnPoint.lock(false);
+			spawnPoint.teleportPlayer(playerName);
+		}
+		ultimateGames.getUtils().autoRespawn(player);
+	}
+	
+	@Override
+	public void onPlayerRespawn(Arena arena, PlayerRespawnEvent event) {
+		Player player = event.getPlayer();
+		if (arena.getStatus() == ArenaStatus.RUNNING) {
+			event.setRespawnLocation(ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).getLocation());
+			equipHunter(player);
+		}
+	}
+	
+	@Override
+	public void onEntityDamage(Arena arena, EntityDamageEvent event) {
+		if (event.getEntity() instanceof Player && arena.getStatus() != ArenaStatus.RUNNING) {
+			event.setCancelled(true);
+		}
+	}
+	
+	@Override
+	public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
@@ -267,28 +303,19 @@ public class Hunter extends GamePlugin {
 		}
 		String damagerName = damager.getName();
 		String damagedName = damaged.getName();
-		if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName).equals(ultimateGames.getPlayerManager().isPlayerInArena(damagedName))) {
+		if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName) || !ultimateGames.getPlayerManager().getPlayerArena(damagerName).equals(arena) || arena.getStatus() != ArenaStatus.RUNNING) {
 			event.setCancelled(true);
-			return;
-		} else if (!ultimateGames.getPlayerManager().isPlayerInArena(damagerName)) {
 			return;
 		}
-		Arena damagerArena = ultimateGames.getPlayerManager().getPlayerArena(damagerName);
-		Arena damagedArena = ultimateGames.getPlayerManager().getPlayerArena(damagedName);
-		if (!damagerArena.equals(damagedArena)) {
+		if (!hunters.containsKey(arena)) {
 			return;
-		} else if (!hunters.containsKey(damagerArena) || !hunters.containsKey(damagerArena)) {
-			return;
-		} else if (damagerArena.getStatus() != ArenaStatus.RUNNING) {
-			event.setCancelled(true);
-			return;
-		} else if (isPlayerHunter(damagerArena, damagerName) && isPlayerCivilian(damagerArena, damagedName)) {
+		} else if (isPlayerHunter(arena, damagerName) && isPlayerCivilian(arena, damagedName)) {
 			if (event.getDamager() instanceof Arrow) {
 				event.setCancelled(true);
 				damaged.setHealth((damaged.getHealth() - event.getDamage()) > 0.0 ? damaged.getHealth() - event.getDamage() : 0.0);
 			}
 			return;
-		} else if (isPlayerCivilian(damagerArena, damagerName) && isPlayerHunter(damagerArena, damagedName)) {
+		} else if (isPlayerCivilian(arena, damagerName) && isPlayerHunter(arena, damagedName)) {
 			if (event.getDamager() instanceof Arrow) {
 				event.setCancelled(true);
 				damaged.setHealth((damaged.getHealth() - event.getDamage()) > 0.0 ? damaged.getHealth() - event.getDamage() : 0.0);
@@ -299,65 +326,10 @@ public class Hunter extends GamePlugin {
 			return;
 		}
 	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDamage(EntityDamageEvent event) {
-		if (event.getEntity() instanceof Player) {
-			Player player = (Player) event.getEntity();
-			String playerName = player.getName();
-			if (ultimateGames.getPlayerManager().isPlayerInArena(playerName) && ultimateGames.getPlayerManager().getPlayerArena(playerName).getStatus() != ArenaStatus.RUNNING) {
-				event.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		Player player = event.getPlayer();
-		String playerName = player.getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-			if (arena.getGame().equals(game) && arena.getStatus() == ArenaStatus.RUNNING) {
-				event.setRespawnLocation(ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).getLocation());
-				equipHunter(player);
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDeath(PlayerDeathEvent event) {
-		final Player player = event.getEntity();
-		String playerName = player.getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-			if (arena.getGame().equals(game)) {
-				if (arena.getStatus() == ArenaStatus.RUNNING) {
-					event.getDrops().clear();
-					if (civilians.containsKey(arena) && civilians.get(arena).contains(playerName)) {
-						civilians.get(arena).remove(playerName);
-						if (hunters.containsKey(arena)) {
-							hunters.get(arena).add(playerName);
-							ultimateGames.getMessageManager().sendGameMessage(game, playerName, "hunter");
-						}
-						if (civilians.get(arena).size() == 0) {
-							ultimateGames.getArenaManager().endArena(arena);
-						}
-						for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-							if (scoreBoard.getName().equals(game.getGameDescription())) {
-								scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
-								scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
-							}
-						}
-						ultimateGames.getMessageManager().broadcastReplacedGameMessageToArena(game, arena, "killed", playerName);
-					}
-				} else {
-					SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
-					spawnPoint.lock(false);
-					spawnPoint.teleportPlayer(playerName);
-				}
-				ultimateGames.getUtils().autoRespawn(player);
-			}
-		}
+	
+	@Override
+	public void onPlayerInteract(Arena arena, PlayerInteractEvent event) {
+		
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
