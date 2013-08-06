@@ -1,4 +1,4 @@
-package main.java.me.ampayne2.Hunter;
+package me.ampayne2.Hunter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
