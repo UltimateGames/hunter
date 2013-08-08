@@ -133,18 +133,14 @@ public class Hunter extends GamePlugin {
         return true;
     }
 
-    public Boolean endArena(Arena arena) {
+    public void endArena(Arena arena) {
         if (hunters.get(arena).size() > 0 && civilians.get(arena).size() == 0) {
             ultimateGames.getMessageManager().broadcastGameMessage(game, "hunterswin");
         } else {
             ultimateGames.getMessageManager().broadcastGameMessage(game, "huntedwin");
         }
-        for (String playerName : arena.getPlayers()) {
-            ultimateGames.getPlayerManager().removePlayerFromArena(playerName, arena, false);
-        }
         ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, game.getGameDescription().getName());
         ultimateGames.getArenaManager().openArena(arena);
-        return true;
     }
 
     public Boolean resetArena(Arena arena) {
