@@ -53,7 +53,7 @@ public class Hunter extends GamePlugin {
     public Boolean loadArena(Arena arena) {
         hunters.put(arena, new ArrayList<String>());
         civilians.put(arena, new ArrayList<String>());
-        ultimateGames.getJettyServer().getHandler().addHandler("/Hunter/" + arena.getName(), new WebKillHandler(this, arena));
+        ultimateGames.addAPIHandler("/Hunter/" + arena.getName(), new WebKillHandler(this, arena));
         return true;
     }
 
