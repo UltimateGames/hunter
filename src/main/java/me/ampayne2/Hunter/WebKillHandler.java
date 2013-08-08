@@ -1,9 +1,11 @@
 package me.ampayne2.Hunter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.json.JSONArray;
-import me.ampayne2.ultimategames.json.JSONException;
-import me.ampayne2.ultimategames.json.JSONObject;
+import me.ampayne2.ultimategames.gson.Gson;
 import me.ampayne2.ultimategames.webapi.WebHandler;
 
 public class WebKillHandler implements WebHandler{
@@ -16,15 +18,10 @@ public class WebKillHandler implements WebHandler{
     }
     @Override
     public String sendResult() {
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.append("civilians", hunter.getCivilians(arena));
-            jsonObject.append("hunters", hunter.getHunters(arena));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        jsonArray.put(jsonObject);
-        return jsonArray.toString();
+        Gson gson = new Gson();
+        Map<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
+        map.put("civilians", hunter.getCivilians(arena));
+        map.put("hunters", hunter.getHunters(arena));
+        return gson.toJson(map);
     }
 }
