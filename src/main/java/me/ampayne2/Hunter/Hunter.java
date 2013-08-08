@@ -140,7 +140,6 @@ public class Hunter extends GamePlugin {
             ultimateGames.getMessageManager().broadcastGameMessage(game, "huntedwin");
         }
         ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, game.getGameDescription().getName());
-        ultimateGames.getArenaManager().openArena(arena);
     }
 
     public Boolean resetArena(Arena arena) {
