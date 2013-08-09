@@ -92,7 +92,7 @@ public class Hunter extends GamePlugin {
         ArrayList<String> hunter = new ArrayList<String>();
         Random generator = new Random();
         String hunterName = arena.getPlayers().get(generator.nextInt(arena.getPlayers().size()));
-        Player theHunter = Bukkit.getPlayer(hunterName);
+        Player theHunter = Bukkit.getPlayerExact(hunterName);
         hunter.add(hunterName);
         hunters.put(arena, hunter);
         ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(hunterName);
@@ -107,7 +107,7 @@ public class Hunter extends GamePlugin {
             if (!playerName.equals(hunterName)) {
                 civilian.add(playerName);
                 ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(playerName);
-                Player aCivilian = Bukkit.getPlayer(playerName);
+                Player aCivilian = Bukkit.getPlayerExact(playerName);
                 aCivilian.getInventory().clear();
                 equipCivilian(aCivilian);
                 aCivilian.setHealth(20.0);
@@ -162,14 +162,14 @@ public class Hunter extends GamePlugin {
         SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(playerName);
-        Player player = Bukkit.getPlayer(playerName);
+        Player player = Bukkit.getPlayerExact(playerName);
         player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
         player.updateInventory();
         return true;
     }
 
     public Boolean removePlayer(Arena arena, String playerName) {
-        Player player = Bukkit.getPlayer(playerName);
+        Player player = Bukkit.getPlayerExact(playerName);
         if (player.hasPotionEffect(PotionEffectType.SPEED)) {
             player.removePotionEffect(PotionEffectType.SPEED);
         }
