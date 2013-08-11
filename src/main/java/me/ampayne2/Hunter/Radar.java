@@ -1,6 +1,6 @@
 package me.ampayne2.Hunter;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
@@ -24,8 +24,8 @@ public class Radar extends BukkitRunnable{
 	@Override
 	public void run() {
 		if (arena.getStatus() == ArenaStatus.RUNNING) {
-			ArrayList<String> hunters = hunter.getHunters(arena);
-			ArrayList<String> civilians = hunter.getCivilians(arena);
+			List<String> hunters = hunter.getHunters(arena);
+			List<String> civilians = hunter.getCivilians(arena);
 			if (hunters != null & !hunters.isEmpty() && civilians != null && !civilians.isEmpty()) {
 				for (String hunterName : hunters) {
 					ultimateGames.getUtils().radarScan(hunterName, civilians);

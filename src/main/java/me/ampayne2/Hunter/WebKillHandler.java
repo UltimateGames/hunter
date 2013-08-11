@@ -1,7 +1,7 @@
 package me.ampayne2.Hunter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import me.ampayne2.ultimategames.arenas.Arena;
@@ -19,7 +19,7 @@ public class WebKillHandler implements WebHandler{
     @Override
     public String sendResult() {
         Gson gson = new Gson();
-        Map<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
         map.put("civilians", hunter.getCivilians(arena));
         map.put("hunters", hunter.getHunters(arena));
         return gson.toJson(map);
