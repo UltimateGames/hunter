@@ -160,10 +160,12 @@ public class Hunter extends GamePlugin {
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(playerName);
         Player player = Bukkit.getPlayerExact(playerName);
-        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
-        player.updateInventory();
         player.setHealth(20.0);
         player.setFoodLevel(20);
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
+        player.updateInventory();
         return true;
     }
 
