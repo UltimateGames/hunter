@@ -24,6 +24,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -88,12 +89,12 @@ public class Hunter extends GamePlugin {
         List<String> hunter = new ArrayList<String>();
         Random generator = new Random();
         String hunterName = arena.getPlayers().get(generator.nextInt(arena.getPlayers().size()));
-        scoreBoard.addPlayer(hunterName);
-        scoreBoard.setPlayerColor(hunterName, ChatColor.DARK_RED);
         Player theHunter = Bukkit.getPlayerExact(hunterName);
+        scoreBoard.addPlayer(theHunter);
+        scoreBoard.setPlayerColor(theHunter, ChatColor.DARK_RED);
         hunter.add(hunterName);
         hunters.put(arena, hunter);
-        ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(hunterName);
+        ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(theHunter);
         equipHunter(theHunter);
         ultimateGames.getMessageManager().sendGameMessage(game, hunterName, "starthunter");
 
@@ -101,10 +102,11 @@ public class Hunter extends GamePlugin {
         List<String> civilian = new ArrayList<String>();
         for (String playerName : arena.getPlayers()) {
             if (!playerName.equals(hunterName)) {
-                scoreBoard.addPlayer(playerName);
-                scoreBoard.setPlayerColor(playerName, ChatColor.GREEN);
+                Player player = Bukkit.getPlayerExact(playerName);
+                scoreBoard.addPlayer(player);
+                scoreBoard.setPlayerColor(player, ChatColor.GREEN);
                 civilian.add(playerName);
-                ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(playerName);
+                ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(player);
                 equipCivilian(Bukkit.getPlayerExact(playerName));
                 ultimateGames.getMessageManager().sendGameMessage(game, playerName, "starthunted");
             }
@@ -143,7 +145,7 @@ public class Hunter extends GamePlugin {
     }
 
     @SuppressWarnings("deprecation")
-    public Boolean addPlayer(Arena arena, String playerName) {
+    public Boolean addPlayer(Player player, Arena arena) {
         // Starts the arena if there's enough players
         if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
             ultimateGames.getCountdownManager().createStartingCountdown(arena, 30);
@@ -151,8 +153,7 @@ public class Hunter extends GamePlugin {
         // Teleports the player to a random spawnpoint, gives them instructions, and replenishes their food/health
         SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
         spawnPoint.lock(false);
-        spawnPoint.teleportPlayer(playerName);
-        Player player = Bukkit.getPlayerExact(playerName);
+        spawnPoint.teleportPlayer(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.getInventory().clear();
@@ -162,9 +163,10 @@ public class Hunter extends GamePlugin {
         return true;
     }
 
-    public Boolean removePlayer(Arena arena, String playerName) {
+    public void removePlayer(Player player, Arena arena) {
         // Detects if there are 0 hunters or civilians left and if so ends the arena
         if (arena.getStatus() == ArenaStatus.RUNNING) {
+            String playerName = player.getName();
             if (hunters.containsKey(arena) && hunters.get(arena).contains(playerName)) {
                 hunters.get(arena).remove(playerName);
                 if (hunters.get(arena).size() == 0) {
@@ -184,7 +186,6 @@ public class Hunter extends GamePlugin {
                 }
             }
         }
-        return true;
     }
 
     @Override
@@ -204,7 +205,7 @@ public class Hunter extends GamePlugin {
                         if (scoreBoard.getName().equals(game.getGameDescription().getName())) {
                             scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
                             scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
-                            scoreBoard.setPlayerColor(playerName, ChatColor.DARK_RED);
+                            scoreBoard.setPlayerColor(player, ChatColor.DARK_RED);
                         }
                     }
                 }
@@ -213,7 +214,7 @@ public class Hunter extends GamePlugin {
         } else {
             SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
             spawnPoint.lock(false);
-            spawnPoint.teleportPlayer(playerName);
+            spawnPoint.teleportPlayer(player);
         }
         ultimateGames.getUtils().autoRespawn(player);
     }
@@ -229,7 +230,7 @@ public class Hunter extends GamePlugin {
 
     @Override
     public void onEntityDamage(Arena arena, EntityDamageEvent event) {
-        if (arena.getStatus() != ArenaStatus.RUNNING) {
+        if ((arena.getStatus() != ArenaStatus.RUNNING && event.getEntity() instanceof Player) || (event.getCause() == DamageCause.FALL && event.getEntity() instanceof Player && isPlayerHunter(arena, ((Player) event.getEntity()).getName()))) {
             event.setCancelled(true);
         }
     }
