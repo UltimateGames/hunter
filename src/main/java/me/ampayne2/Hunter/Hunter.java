@@ -56,7 +56,7 @@ public class Hunter extends GamePlugin {
     public Boolean loadArena(Arena arena) {
         hunters.put(arena, new ArrayList<String>());
         civilians.put(arena, new ArrayList<String>());
-        ultimateGames.addAPIHandler("/" + game.getGameDescription().getName() + "/" + arena.getName(), new WebKillHandler(this, arena));
+        ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new WebKillHandler(this, arena));
         return true;
     }
 
@@ -78,7 +78,7 @@ public class Hunter extends GamePlugin {
         // Create the ending countdown
         ultimateGames.getCountdownManager().createEndingCountdown(arena, 300, true);
         
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, game.getGameDescription().getName());
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, game.getName());
 
         // Unlock all spawnpoints
         for (SpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
@@ -95,8 +95,8 @@ public class Hunter extends GamePlugin {
         hunter.add(hunterName);
         hunters.put(arena, hunter);
         ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(theHunter);
-        equipHunter(theHunter);
-        ultimateGames.getMessageManager().sendGameMessage(game, hunterName, "starthunter");
+        equipHunter(theHunter, arena);
+        ultimateGames.getMessageManager().sendGameMessage(game, theHunter, "starthunter");
 
         // Makes the rest of the players civilians, adding them to the scoreboard, setting their color to green, spawning the, and sending them a message.
         List<String> civilian = new ArrayList<String>();
@@ -108,7 +108,7 @@ public class Hunter extends GamePlugin {
                 civilian.add(playerName);
                 ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(player);
                 equipCivilian(Bukkit.getPlayerExact(playerName));
-                ultimateGames.getMessageManager().sendGameMessage(game, playerName, "starthunted");
+                ultimateGames.getMessageManager().sendGameMessage(game, player, "starthunted");
             }
         }
         civilians.put(arena, civilian);
@@ -180,12 +180,35 @@ public class Hunter extends GamePlugin {
             }
             // Updates the arena scoreboard
             for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-                if (scoreBoard.getName().equals(game.getGameDescription())) {
+                if (scoreBoard.getName().equals(game.getName())) {
                     scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
                     scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
                 }
             }
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public Boolean addSpectator(Player player, Arena arena) {
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
+        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
+        spawnPoint.lock(false);
+        spawnPoint.teleportPlayer(player);
+        player.setHealth(20.0);
+        player.setFoodLevel(20);
+        player.getInventory().clear();
+        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().setArmorContents(null);
+        player.updateInventory();
+        return true;
+    }
+    
+    @Override
+    public void removeSpectator(Player player, Arena arena) {
+        
     }
 
     @Override
@@ -200,9 +223,9 @@ public class Hunter extends GamePlugin {
                 if (civilians.get(arena).size() == 0) {
                     ultimateGames.getArenaManager().endArena(arena);
                 } else {
-                    ultimateGames.getMessageManager().sendGameMessage(game, playerName, "hunter");
+                    ultimateGames.getMessageManager().sendGameMessage(game, player, "hunter");
                     for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-                        if (scoreBoard.getName().equals(game.getGameDescription().getName())) {
+                        if (scoreBoard.getName().equals(game.getName())) {
                             scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.get(arena).size());
                             scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.get(arena).size());
                             scoreBoard.setPlayerColor(player, ChatColor.DARK_RED);
@@ -224,7 +247,7 @@ public class Hunter extends GamePlugin {
         Player player = event.getPlayer();
         if (arena.getStatus() == ArenaStatus.RUNNING) {
             event.setRespawnLocation(ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).getLocation());
-            equipHunter(player);
+            equipHunter(player, arena);
         }
     }
 
@@ -302,7 +325,7 @@ public class Hunter extends GamePlugin {
         return civilians.containsKey(arena) && civilians.get(arena).contains(playerName);
     }
 
-    public void equipHunter(final Player player) {
+    public void equipHunter(final Player player, final Arena arena) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         ItemStack bow = new ItemStack(Material.BOW, 1);
@@ -313,8 +336,10 @@ public class Hunter extends GamePlugin {
         Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
             @Override
             public void run() {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
+                if (isPlayerHunter(arena, player.getName())) {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
+                }
             }
         }, 40L);
     }
