@@ -1,4 +1,4 @@
-package me.ampayne2.Hunter;
+package me.ampayne2.hunter;
 
 import java.util.List;
 
@@ -12,25 +12,23 @@ public class Radar extends BukkitRunnable{
 
 	private UltimateGames ultimateGames;
 	private Arena arena;
-	private Hunter hunter;
 	
-	public Radar(UltimateGames ultimateGames, Arena arena, Hunter hunter) {
+	public Radar(UltimateGames ultimateGames, Arena arena) {
 		this.ultimateGames = ultimateGames;
 		this.arena = arena;
-		this.hunter = hunter;
 		this.runTaskLater(ultimateGames, 1L);
 	}
 	
 	@Override
 	public void run() {
 		if (arena.getStatus() == ArenaStatus.RUNNING) {
-			List<String> hunters = hunter.getHunters(arena);
-			List<String> civilians = hunter.getCivilians(arena);
+			List<String> hunters = ultimateGames.getTeamManager().getTeam(arena, "Hunter").getPlayers();
+			List<String> civilians = ultimateGames.getTeamManager().getTeam(arena, "Civilian").getPlayers();
 			if (hunters != null & !hunters.isEmpty() && civilians != null && !civilians.isEmpty()) {
 				for (String hunterName : hunters) {
 					ultimateGames.getUtils().radarScan(hunterName, civilians);
 				}
-				new Radar(ultimateGames, arena, hunter);
+				new Radar(ultimateGames, arena);
 			}
 		}
 	}

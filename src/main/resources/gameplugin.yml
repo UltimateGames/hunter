@@ -1,4 +1,4 @@
-main-class: "me.ampayne2.Hunter.Hunter"
+main-class: "me.ampayne2.hunter.Hunter"
 description: "The official Ultimate Games Hunter/Infected game."
 version: "1.0"
 author: "ampayne2"
@@ -24,9 +24,8 @@ DefaultSettings:
 Instructions:
 - "If you are a hunter, exterminate the civilians.\nIf you are a civilian, stay alive."
 Messages:
-  starthunter: "&4You are the Hunter! Exterminate the Civilians."
-  starthunted: "&4You are a Civilian! Stay alive."
-  hunter: "&4You are now a Hunter! Exterminate the Civilians."
+  civilian: "&4You are one of the last. Stay alive."
+  hunter: "&4Exterminate every last civilian on minecraftia..."
   killed: "&4%s was killed!"
   hunterswin: "&4The Hunters have exterminated the Civilians!"
   huntedwin: "&4The Hunters have failed to exterminate the Civilians!"
