@@ -26,7 +26,7 @@ public class HunterClass extends GameClass {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void resetInventory(final Player player) {
+    public void resetInventory(Player player) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         ItemStack bow = new ItemStack(Material.BOW, 1);
@@ -35,13 +35,14 @@ public class HunterClass extends GameClass {
         bow.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
         player.getInventory().addItem(bow, new ItemStack(Material.ARROW, 1), ultimateGames.getUtils().createInstructionBook(game));
         player.updateInventory();
+        final String playerName = player.getName();
         Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
             @Override
             public void run() {
-                String playerName = player.getName();
                 if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
                     Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
                     if (arena.getGame().equals(game) && ultimateGames.getTeamManager().getTeam(arena, "Hunter").hasPlayer(playerName)) {
+                        Player player = Bukkit.getPlayerExact(playerName);
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
                     }

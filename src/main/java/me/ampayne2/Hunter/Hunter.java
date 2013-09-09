@@ -137,7 +137,7 @@ public class Hunter extends GamePlugin {
 
     @Override
     public void endArena(Arena arena) {
-        if (ultimateGames.getTeamManager().getTeam(arena, "Hunter").getPlayers().size() == 0) {
+        if (ultimateGames.getTeamManager().getTeam(arena, "Civilian").getPlayers().size() == 0) {
             ultimateGames.getMessageManager().broadcastGameMessage(game, "hunterswin");
         } else {
             ultimateGames.getMessageManager().broadcastGameMessage(game, "huntedwin");
@@ -246,9 +246,10 @@ public class Hunter extends GamePlugin {
             TeamManager teamManager = ultimateGames.getTeamManager();
             Team civilians = teamManager.getTeam(arena, "Civilian");
             if (civilians.hasPlayer(playerName)) {
-                civilians.removePlayer(player);
+                civilians.removePlayer(playerName);
                 Team hunters = teamManager.getTeam(arena, "Hunter");
                 hunters.addPlayer(player);
+                hunter.addPlayerToClass(player);
                 ultimateGames.getMessageManager().sendGameMessage(game, player, "hunter");
 
                 ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
@@ -257,6 +258,9 @@ public class Hunter extends GamePlugin {
                     scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.getPlayers().size());
                 }
                 ultimateGames.getMessageManager().broadcastReplacedGameMessageToArena(game, arena, "killed", playerName);
+                if (civilians.getPlayers().size() == 0) {
+                    ultimateGames.getArenaManager().endArena(arena);
+                }
             }
         } else {
             SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
@@ -272,9 +276,7 @@ public class Hunter extends GamePlugin {
         String playerName = player.getName();
         if (arena.getStatus() == ArenaStatus.RUNNING) {
             Team civilians = ultimateGames.getTeamManager().getTeam(arena, "Civilian");
-            if (civilians.getPlayers().size() == 0) {
-                ultimateGames.getArenaManager().endArena(arena);
-            } else {
+            if (civilians.getPlayers().size() > 0) {
                 event.setRespawnLocation(ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).getLocation());
                 GameClass gameClass = ultimateGames.getClassManager().getPlayerClass(game, playerName);
                 if (gameClass != null) {
