@@ -10,10 +10,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CivilianClass extends GameClass {
-    
+
     private UltimateGames ultimateGames;
     private Game game;
-    
+
     public CivilianClass(UltimateGames ultimateGames, Game game, String name, boolean canSwitchToWithoutDeath) {
         super(ultimateGames, game, name, canSwitchToWithoutDeath);
         this.ultimateGames = ultimateGames;

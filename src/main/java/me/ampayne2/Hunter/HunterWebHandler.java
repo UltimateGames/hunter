@@ -9,15 +9,16 @@ import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.gson.Gson;
 import me.ampayne2.ultimategames.webapi.WebHandler;
 
-public class WebKillHandler implements WebHandler{
+public class HunterWebHandler implements WebHandler {
 
     private UltimateGames ug;
     private Arena arena;
-    
-    public WebKillHandler(UltimateGames ultimateGames, Arena arena) {
+
+    public HunterWebHandler(UltimateGames ultimateGames, Arena arena) {
         this.ug = ultimateGames;
         this.arena = arena;
     }
+
     @Override
     public String sendResult() {
         Gson gson = new Gson();

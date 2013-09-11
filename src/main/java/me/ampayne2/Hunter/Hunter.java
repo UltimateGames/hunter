@@ -8,7 +8,7 @@ import me.ampayne2.hunter.classes.HunterClass;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.SpawnPoint;
+import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.classes.ClassManager;
 import me.ampayne2.ultimategames.classes.GameClass;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
@@ -28,6 +28,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.potion.PotionEffect;
 
 public class Hunter extends GamePlugin {
 
@@ -68,7 +69,7 @@ public class Hunter extends GamePlugin {
         TeamManager teamManager = ultimateGames.getTeamManager();
         teamManager.addTeam(new Team(ultimateGames, arena, ChatColor.DARK_RED, "Hunter", false));
         teamManager.addTeam(new Team(ultimateGames, arena, ChatColor.GREEN, "Civilian", false));
-        ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new WebKillHandler(ultimateGames, arena));
+        ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new HunterWebHandler(ultimateGames, arena));
         return true;
     }
 
@@ -96,7 +97,7 @@ public class Hunter extends GamePlugin {
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, game.getName());
 
         // Unlock all spawnpoints
-        for (SpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
+        for (PlayerSpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
             spawnPoint.lock(false);
         }
 
@@ -166,9 +167,12 @@ public class Hunter extends GamePlugin {
             if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
                 ultimateGames.getCountdownManager().createStartingCountdown(arena, 30);
             }
-            SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
+            PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
             spawnPoint.lock(false);
             spawnPoint.teleportPlayer(player);
+            for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+                player.removePotionEffect(potionEffect.getType());
+            }
             player.setHealth(20.0);
             player.setFoodLevel(20);
             player.getInventory().clear();
@@ -194,13 +198,13 @@ public class Hunter extends GamePlugin {
                     team.addPlayer(newPlayer);
                     if (team.getName().equals("Hunter")) {
                         ultimateGames.getMessageManager().sendGameMessage(game, newPlayer, "hunter");
-                        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0);
+                        PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0);
                         spawnPoint.lock(false);
                         spawnPoint.teleportPlayer(newPlayer);
                         hunter.addPlayerToClass(newPlayer, true);
                     } else if (team.getName().equals("Civilian")) {
                         ultimateGames.getMessageManager().sendGameMessage(game, newPlayer, "civilian");
-                        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
+                        PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
                         spawnPoint.lock(false);
                         spawnPoint.teleportPlayer(player);
                         civilian.addPlayerToClass(newPlayer, true);
@@ -220,14 +224,15 @@ public class Hunter extends GamePlugin {
     @SuppressWarnings("deprecation")
     @Override
     public Boolean addSpectator(Player player, Arena arena) {
-        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
-        spawnPoint.lock(false);
-        spawnPoint.teleportPlayer(player);
+        ultimateGames.getSpawnpointManager().getSpectatorSpawnPoint(arena).teleportPlayer(player);
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.getInventory().clear();
-        player.getInventory().setArmorContents(null);
         player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().setArmorContents(null);
         player.updateInventory();
         return true;
     }
@@ -263,7 +268,7 @@ public class Hunter extends GamePlugin {
                 }
             }
         } else {
-            SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
+            PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
             spawnPoint.lock(false);
             spawnPoint.teleportPlayer(player);
         }

@@ -14,10 +14,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class HunterClass extends GameClass {
-    
+
     private UltimateGames ultimateGames;
     private Game game;
-    
+
     public HunterClass(UltimateGames ultimateGames, Game game, String name, boolean canSwitchToWithoutDeath) {
         super(ultimateGames, game, name, canSwitchToWithoutDeath);
         this.ultimateGames = ultimateGames;
