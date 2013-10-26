@@ -9,14 +9,15 @@ import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
-import me.ampayne2.ultimategames.classes.ClassManager;
 import me.ampayne2.ultimategames.classes.GameClass;
+import me.ampayne2.ultimategames.classes.GameClassManager;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.teams.Team;
 import me.ampayne2.ultimategames.teams.TeamManager;
 
+import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
@@ -41,8 +42,8 @@ public class Hunter extends GamePlugin {
     public Boolean loadGame(UltimateGames ultimateGames, Game game) {
         this.ultimateGames = ultimateGames;
         this.game = game;
-        ClassManager classManager = ultimateGames.getClassManager();
-        hunter = new HunterClass(ultimateGames, game, "Hunter", false);
+        GameClassManager classManager = ultimateGames.getGameClassManager();
+        hunter = new HunterClass(ultimateGames, game, "hunter", false);
         civilian = new CivilianClass(ultimateGames, game, "Civilian", false);
         classManager.addGameClass(hunter);
         classManager.addGameClass(civilian);
@@ -67,8 +68,8 @@ public class Hunter extends GamePlugin {
     @Override
     public Boolean loadArena(Arena arena) {
         TeamManager teamManager = ultimateGames.getTeamManager();
-        teamManager.addTeam(new Team(ultimateGames, arena, ChatColor.DARK_RED, "Hunter", false));
-        teamManager.addTeam(new Team(ultimateGames, arena, ChatColor.GREEN, "Civilian", false));
+        teamManager.addTeam(new Team(ultimateGames, "hunter", arena, ChatColor.DARK_RED, false));
+        teamManager.addTeam(new Team(ultimateGames, "Civilian", arena, ChatColor.GREEN, false));
         ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new HunterWebHandler(ultimateGames, arena));
         return true;
     }
@@ -108,10 +109,10 @@ public class Hunter extends GamePlugin {
         scoreBoard.addPlayer(theHunter);
         scoreBoard.setPlayerColor(theHunter, ChatColor.DARK_RED);
         TeamManager teamManager = ultimateGames.getTeamManager();
-        teamManager.getTeam(arena, "Hunter").addPlayer(theHunter);
+        teamManager.getTeam(arena, "hunter").addPlayer(theHunter);
         ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(theHunter);
         hunter.addPlayerToClass(theHunter);
-        ultimateGames.getMessageManager().sendGameMessage(game, theHunter, "hunter");
+        ultimateGames.getMessageManager().sendGameMessage(theHunter, game, "hunter");
 
         // Makes the rest of the players civilians, adding them to the scoreboard, setting their color to green, spawning the, and sending them a message.
         for (String playerName : arena.getPlayers()) {
@@ -121,7 +122,7 @@ public class Hunter extends GamePlugin {
                 teamManager.getTeam(arena, "Civilian").addPlayer(player);
                 ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(player);
                 civilian.addPlayerToClass(player);
-                ultimateGames.getMessageManager().sendGameMessage(game, player, "civilian");
+                ultimateGames.getMessageManager().sendGameMessage(player, game, "civilian");
             }
         }
 
@@ -139,9 +140,9 @@ public class Hunter extends GamePlugin {
     @Override
     public void endArena(Arena arena) {
         if (ultimateGames.getTeamManager().getTeam(arena, "Civilian").getPlayers().size() == 0) {
-            ultimateGames.getMessageManager().broadcastGameMessage(game, "hunterswin");
+            ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "hunterswin");
         } else {
-            ultimateGames.getMessageManager().broadcastGameMessage(game, "huntedwin");
+            ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "huntedwin");
         }
     }
 
@@ -164,7 +165,7 @@ public class Hunter extends GamePlugin {
     @Override
     public Boolean addPlayer(Player player, Arena arena) {
         if (arena.getStatus() == ArenaStatus.OPEN || arena.getStatus() == ArenaStatus.STARTING) {
-            if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
+            if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().hasStartingCountdown(arena)) {
                 ultimateGames.getCountdownManager().createStartingCountdown(arena, 30);
             }
             PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
@@ -177,7 +178,7 @@ public class Hunter extends GamePlugin {
             player.setFoodLevel(20);
             player.getInventory().clear();
             player.getInventory().setArmorContents(null);
-            player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+            player.getInventory().addItem(UGUtils.createInstructionBook(game));
             player.updateInventory();
         }
         return true;
@@ -196,14 +197,14 @@ public class Hunter extends GamePlugin {
                     Player newPlayer = Bukkit.getPlayerExact(newPlayerName);
                     ultimateGames.getPlayerManager().addPlayerToArena(newPlayer, arena, true);
                     team.addPlayer(newPlayer);
-                    if (team.getName().equals("Hunter")) {
-                        ultimateGames.getMessageManager().sendGameMessage(game, newPlayer, "hunter");
+                    if (team.getName().equals("hunter")) {
+                        ultimateGames.getMessageManager().sendGameMessage(newPlayer, game, "hunter");
                         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0);
                         spawnPoint.lock(false);
                         spawnPoint.teleportPlayer(newPlayer);
                         hunter.addPlayerToClass(newPlayer, true);
                     } else if (team.getName().equals("Civilian")) {
-                        ultimateGames.getMessageManager().sendGameMessage(game, newPlayer, "civilian");
+                        ultimateGames.getMessageManager().sendGameMessage(newPlayer, game, "civilian");
                         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
                         spawnPoint.lock(false);
                         spawnPoint.teleportPlayer(player);
@@ -215,7 +216,7 @@ public class Hunter extends GamePlugin {
             }
             ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
             if (scoreBoard != null) {
-                scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", teamManager.getTeam(arena, "Hunter").getPlayers().size());
+                scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", teamManager.getTeam(arena, "hunter").getPlayers().size());
                 scoreBoard.setScore(ChatColor.GREEN + "Civilians", teamManager.getTeam(arena, "Civilian").getPlayers().size());
             }
         }
@@ -231,7 +232,7 @@ public class Hunter extends GamePlugin {
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.getInventory().clear();
-        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(UGUtils.createInstructionBook(game));
         player.getInventory().setArmorContents(null);
         player.updateInventory();
         return true;
@@ -252,17 +253,17 @@ public class Hunter extends GamePlugin {
             Team civilians = teamManager.getTeam(arena, "Civilian");
             if (civilians.hasPlayer(playerName)) {
                 civilians.removePlayer(playerName);
-                Team hunters = teamManager.getTeam(arena, "Hunter");
+                Team hunters = teamManager.getTeam(arena, "hunter");
                 hunters.addPlayer(player);
                 hunter.addPlayerToClass(player);
-                ultimateGames.getMessageManager().sendGameMessage(game, player, "hunter");
+                ultimateGames.getMessageManager().sendGameMessage(player, game, "hunter");
 
                 ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
                 if (scoreBoard != null) {
                     scoreBoard.setScore(ChatColor.DARK_RED + "Hunters", hunters.getPlayers().size());
                     scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.getPlayers().size());
                 }
-                ultimateGames.getMessageManager().broadcastReplacedGameMessageToArena(game, arena, "killed", playerName);
+                ultimateGames.getMessageManager().sendGameMessage(arena, game, "killed", playerName);
                 if (civilians.getPlayers().size() == 0) {
                     ultimateGames.getArenaManager().endArena(arena);
                 }
@@ -272,7 +273,7 @@ public class Hunter extends GamePlugin {
             spawnPoint.lock(false);
             spawnPoint.teleportPlayer(player);
         }
-        ultimateGames.getUtils().autoRespawn(player);
+        UGUtils.autoRespawn(player);
     }
 
     @Override
@@ -283,7 +284,7 @@ public class Hunter extends GamePlugin {
             Team civilians = ultimateGames.getTeamManager().getTeam(arena, "Civilian");
             if (civilians.getPlayers().size() > 0) {
                 event.setRespawnLocation(ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).getLocation());
-                GameClass gameClass = ultimateGames.getClassManager().getPlayerClass(game, playerName);
+                GameClass gameClass = ultimateGames.getGameClassManager().getPlayerClass(game, playerName);
                 if (gameClass != null) {
                     gameClass.resetInventory(player);
                 }

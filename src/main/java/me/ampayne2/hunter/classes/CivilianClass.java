@@ -4,6 +4,7 @@ import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.classes.GameClass;
 import me.ampayne2.ultimategames.games.Game;
 
+import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -27,7 +28,7 @@ public class CivilianClass extends GameClass {
         player.getInventory().setArmorContents(null);
         ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
         sword.addEnchantment(Enchantment.DAMAGE_ALL, 5);
-        player.getInventory().addItem(sword, new ItemStack(Material.GOLDEN_APPLE, 1), ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(sword, new ItemStack(Material.GOLDEN_APPLE, 1), UGUtils.createInstructionBook(game));
         player.updateInventory();
     }
 

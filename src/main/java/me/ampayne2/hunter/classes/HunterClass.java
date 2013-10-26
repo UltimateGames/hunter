@@ -5,6 +5,7 @@ import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.classes.GameClass;
 import me.ampayne2.ultimategames.games.Game;
 
+import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -33,7 +34,7 @@ public class HunterClass extends GameClass {
         bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 10);
         bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
         bow.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-        player.getInventory().addItem(bow, new ItemStack(Material.ARROW, 1), ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(bow, new ItemStack(Material.ARROW, 1), UGUtils.createInstructionBook(game));
         player.updateInventory();
         final String playerName = player.getName();
         Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
@@ -41,7 +42,7 @@ public class HunterClass extends GameClass {
             public void run() {
                 if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
                     Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-                    if (arena.getGame().equals(game) && ultimateGames.getTeamManager().getTeam(arena, "Hunter").hasPlayer(playerName)) {
+                    if (arena.getGame().equals(game) && ultimateGames.getTeamManager().getTeam(arena, "hunter").hasPlayer(playerName)) {
                         Player player = Bukkit.getPlayerExact(playerName);
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));

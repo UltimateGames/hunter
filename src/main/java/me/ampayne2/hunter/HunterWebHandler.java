@@ -24,7 +24,7 @@ public class HunterWebHandler implements WebHandler {
         Gson gson = new Gson();
         Map<String, List<String>> map = new HashMap<String, List<String>>();
         map.put("civilians", ug.getTeamManager().getTeam(arena, "Civilian").getPlayers());
-        map.put("hunters", ug.getTeamManager().getTeam(arena, "Hunter").getPlayers());
+        map.put("hunters", ug.getTeamManager().getTeam(arena, "hunter").getPlayers());
         return gson.toJson(map);
     }
 }
