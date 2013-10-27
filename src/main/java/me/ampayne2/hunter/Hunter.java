@@ -141,8 +141,16 @@ public class Hunter extends GamePlugin {
     public void endArena(Arena arena) {
         if (ultimateGames.getTeamManager().getTeam(arena, "Civilian").getPlayers().size() == 0) {
             ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "hunterswin");
+            for (String player: ultimateGames.getTeamManager().getTeam(arena, "Civilian").getPlayers()) {
+                ultimateGames.getPointManager().addPoint(game, player, "store", 10);
+                ultimateGames.getPointManager().addPoint(game, player, "win", 1);
+            }
         } else {
             ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "huntedwin");
+            for (String player: ultimateGames.getTeamManager().getTeam(arena, "hunter").getPlayers()) {
+                ultimateGames.getPointManager().addPoint(game, player, "store", 10);
+                ultimateGames.getPointManager().addPoint(game, player, "win", 1);
+            }
         }
     }
 
@@ -264,6 +272,8 @@ public class Hunter extends GamePlugin {
                     scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.getPlayers().size());
                 }
                 ultimateGames.getMessageManager().sendGameMessage(arena, game, "killed", playerName);
+                ultimateGames.getPointManager().addPoint(game, event.getEntity().getKiller().getName(), "store", 1);
+                ultimateGames.getPointManager().addPoint(game, event.getEntity().getKiller().getName(), "kill", 1);
                 if (civilians.getPlayers().size() == 0) {
                     ultimateGames.getArenaManager().endArena(arena);
                 }
