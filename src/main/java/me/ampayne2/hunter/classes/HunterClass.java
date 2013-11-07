@@ -2,9 +2,9 @@ package me.ampayne2.hunter.classes;
 
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.classes.GameClass;
 import me.ampayne2.ultimategames.games.Game;
 
+import me.ampayne2.ultimategames.players.classes.GameClass;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

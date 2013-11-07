@@ -8,15 +8,15 @@ import me.ampayne2.hunter.classes.HunterClass;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
-import me.ampayne2.ultimategames.classes.GameClass;
-import me.ampayne2.ultimategames.classes.GameClassManager;
-import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.arenas.ArenaStatus;
+import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
+import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
-import me.ampayne2.ultimategames.teams.Team;
-import me.ampayne2.ultimategames.teams.TeamManager;
 
+import me.ampayne2.ultimategames.players.classes.GameClass;
+import me.ampayne2.ultimategames.players.classes.GameClassManager;
+import me.ampayne2.ultimategames.players.teams.Team;
+import me.ampayne2.ultimategames.players.teams.TeamManager;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -45,8 +45,8 @@ public class Hunter extends GamePlugin {
         GameClassManager classManager = ultimateGames.getGameClassManager();
         hunter = new HunterClass(ultimateGames, game, "hunter", false);
         civilian = new CivilianClass(ultimateGames, game, "Civilian", false);
-        classManager.addGameClass(hunter);
-        classManager.addGameClass(civilian);
+        classManager.registerGameClass(hunter);
+        classManager.registerGameClass(civilian);
         return true;
     }
 
@@ -111,7 +111,7 @@ public class Hunter extends GamePlugin {
         TeamManager teamManager = ultimateGames.getTeamManager();
         teamManager.getTeam(arena, "hunter").addPlayer(theHunter);
         ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(theHunter);
-        hunter.addPlayerToClass(theHunter);
+        hunter.addPlayer(theHunter);
         ultimateGames.getMessageManager().sendGameMessage(theHunter, game, "hunter");
 
         // Makes the rest of the players civilians, adding them to the scoreboard, setting their color to green, spawning the, and sending them a message.
@@ -121,7 +121,7 @@ public class Hunter extends GamePlugin {
                 scoreBoard.addPlayer(player);
                 teamManager.getTeam(arena, "Civilian").addPlayer(player);
                 ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1).teleportPlayer(player);
-                civilian.addPlayerToClass(player);
+                civilian.addPlayer(player);
                 ultimateGames.getMessageManager().sendGameMessage(player, game, "civilian");
             }
         }
@@ -210,13 +210,13 @@ public class Hunter extends GamePlugin {
                         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0);
                         spawnPoint.lock(false);
                         spawnPoint.teleportPlayer(newPlayer);
-                        hunter.addPlayerToClass(newPlayer, true);
+                        hunter.addPlayer(newPlayer, true);
                     } else if (team.getName().equals("Civilian")) {
                         ultimateGames.getMessageManager().sendGameMessage(newPlayer, game, "civilian");
                         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena, 1);
                         spawnPoint.lock(false);
                         spawnPoint.teleportPlayer(player);
-                        civilian.addPlayerToClass(newPlayer, true);
+                        civilian.addPlayer(newPlayer, true);
                     }
                 } else {
                     ultimateGames.getArenaManager().endArena(arena);
@@ -263,7 +263,7 @@ public class Hunter extends GamePlugin {
                 civilians.removePlayer(playerName);
                 Team hunters = teamManager.getTeam(arena, "hunter");
                 hunters.addPlayer(player);
-                hunter.addPlayerToClass(player);
+                hunter.addPlayer(player);
                 ultimateGames.getMessageManager().sendGameMessage(player, game, "hunter");
 
                 ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);

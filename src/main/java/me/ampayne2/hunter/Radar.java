@@ -4,8 +4,8 @@ import java.util.List;
 
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.enums.ArenaStatus;
 
+import me.ampayne2.ultimategames.arenas.ArenaStatus;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.scheduler.BukkitRunnable;
 
