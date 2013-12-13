@@ -272,8 +272,6 @@ public class Hunter extends GamePlugin {
                     scoreBoard.setScore(ChatColor.GREEN + "Civilians", civilians.getPlayers().size());
                 }
                 ultimateGames.getMessageManager().sendGameMessage(arena, game, "killed", playerName);
-                ultimateGames.getPointManager().addPoint(game, event.getEntity().getKiller().getName(), "store", 1);
-                ultimateGames.getPointManager().addPoint(game, event.getEntity().getKiller().getName(), "kill", 1);
                 if (civilians.getPlayers().size() == 0) {
                     ultimateGames.getArenaManager().endArena(arena);
                 }
@@ -316,6 +314,8 @@ public class Hunter extends GamePlugin {
             if (event.getDamager() instanceof Arrow) {
                 event.setCancelled(true);
                 player.setHealth((player.getHealth() - event.getDamage()) > 0.0 ? player.getHealth() - event.getDamage() : 0.0);
+                ultimateGames.getPointManager().addPoint(game, ((Player)((Arrow) event.getDamager()).getShooter()).getName(), "store", 1);
+                ultimateGames.getPointManager().addPoint(game, ((Player)((Arrow) event.getDamager()).getShooter()).getName(), "kill", 1);
             }
         }
     }
