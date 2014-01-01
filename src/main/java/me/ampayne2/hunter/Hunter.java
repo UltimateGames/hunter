@@ -228,6 +228,12 @@ public class Hunter extends GamePlugin {
                 scoreBoard.setScore(ChatColor.GREEN + "Civilians", teamManager.getTeam(arena, "Civilian").getPlayers().size());
             }
         }
+        if (arena.getStatus() == ArenaStatus.STARTING) {
+            if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().hasStartingCountdown(arena)) {
+                ultimateGames.getCountdownManager().stopStartingCountdown(arena);
+                arena.setStatus(ArenaStatus.OPEN);
+            }
+        }
     }
 
     @SuppressWarnings("deprecation")
