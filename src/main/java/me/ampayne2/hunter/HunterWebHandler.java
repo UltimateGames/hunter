@@ -1,16 +1,15 @@
 package me.ampayne2.hunter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.gson.Gson;
 import me.ampayne2.ultimategames.webapi.WebHandler;
 
-public class HunterWebHandler implements WebHandler {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+public class HunterWebHandler implements WebHandler {
     private UltimateGames ug;
     private Arena arena;
 

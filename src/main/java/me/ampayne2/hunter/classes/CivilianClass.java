@@ -2,7 +2,6 @@ package me.ampayne2.hunter.classes;
 
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.games.Game;
-
 import me.ampayne2.ultimategames.players.classes.GameClass;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Material;
@@ -11,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CivilianClass extends GameClass {
-
     private UltimateGames ultimateGames;
     private Game game;
 
@@ -31,5 +29,4 @@ public class CivilianClass extends GameClass {
         player.getInventory().addItem(sword, new ItemStack(Material.GOLDEN_APPLE, 1), UGUtils.createInstructionBook(game));
         player.updateInventory();
     }
-
 }

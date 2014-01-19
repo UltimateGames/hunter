@@ -3,7 +3,6 @@ package me.ampayne2.hunter.classes;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.games.Game;
-
 import me.ampayne2.ultimategames.players.classes.GameClass;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
@@ -15,7 +14,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class HunterClass extends GameClass {
-
     private UltimateGames ultimateGames;
     private Game game;
 
@@ -51,5 +49,4 @@ public class HunterClass extends GameClass {
             }
         }, 40L);
     }
-
 }
