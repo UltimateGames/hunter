@@ -2,10 +2,6 @@ main-class: "me.ampayne2.hunter.Hunter"
 description: "The official Ultimate Games Hunter/Infected game."
 version: "1.0"
 author: "ampayne2"
-scoreTypeName: "Kills:Deaths"
-secondaryScoreTypeName: "Wins"
-scoreType: "GOOD_BAD"
-secondaryScoreType: "POINTS_HIGHER"
 playerType: "CONFIGUREABLE"
 DefaultSettings:
   MinPlayers: 4
@@ -21,6 +17,9 @@ DefaultSettings:
   Allow-Explosion-Block-Breaking: false
   Allow-Mob-Spawning: false
   Use-Whitelist-As-Blacklist: false
+CustomValues:
+  StartWaitTime: 30
+  GameTime: 300
 Instructions:
 - "If you are a hunter, exterminate the civilians.\nIf you are a civilian, stay alive."
 Messages:

@@ -16,6 +16,9 @@ import org.bukkit.potion.PotionEffectType;
 public class HunterClass extends GameClass {
     private UltimateGames ultimateGames;
     private Game game;
+    private static final ItemStack BOW;
+    private static final ItemStack ARROW = new ItemStack(Material.ARROW);
+    private static final ItemStack COMPASS = new ItemStack(Material.COMPASS);
 
     public HunterClass(UltimateGames ultimateGames, Game game, String name, boolean canSwitchToWithoutDeath) {
         super(ultimateGames, game, name, canSwitchToWithoutDeath);
@@ -28,11 +31,7 @@ public class HunterClass extends GameClass {
     public void resetInventory(Player player) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
-        ItemStack bow = new ItemStack(Material.BOW, 1);
-        bow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 10);
-        bow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
-        bow.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-        player.getInventory().addItem(bow, new ItemStack(Material.ARROW, 1), UGUtils.createInstructionBook(game));
+        player.getInventory().addItem(BOW, ARROW, COMPASS, UGUtils.createInstructionBook(game));
         player.updateInventory();
         final String playerName = player.getName();
         Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
@@ -48,5 +47,12 @@ public class HunterClass extends GameClass {
                 }
             }
         }, 40L);
+    }
+
+    static {
+        BOW = new ItemStack(Material.BOW);
+        BOW.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 10);
+        BOW.addEnchantment(Enchantment.ARROW_INFINITE, 1);
+        BOW.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
     }
 }

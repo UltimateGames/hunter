@@ -10,12 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CivilianClass extends GameClass {
-    private UltimateGames ultimateGames;
     private Game game;
+    private static final ItemStack SWORD;
+    private static final ItemStack APPLE = new ItemStack(Material.GOLDEN_APPLE);
 
     public CivilianClass(UltimateGames ultimateGames, Game game, String name, boolean canSwitchToWithoutDeath) {
         super(ultimateGames, game, name, canSwitchToWithoutDeath);
-        this.ultimateGames = ultimateGames;
         this.game = game;
     }
 
@@ -24,9 +24,12 @@ public class CivilianClass extends GameClass {
     public void resetInventory(Player player) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
-        sword.addEnchantment(Enchantment.DAMAGE_ALL, 5);
-        player.getInventory().addItem(sword, new ItemStack(Material.GOLDEN_APPLE, 1), UGUtils.createInstructionBook(game));
+        player.getInventory().addItem(SWORD, APPLE, UGUtils.createInstructionBook(game));
         player.updateInventory();
+    }
+
+    static {
+        SWORD = new ItemStack(Material.DIAMOND_SWORD);
+        SWORD.addEnchantment(Enchantment.DAMAGE_ALL, 5);
     }
 }
