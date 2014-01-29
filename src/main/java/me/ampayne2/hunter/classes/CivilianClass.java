@@ -1,9 +1,9 @@
 package me.ampayne2.hunter.classes;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.players.classes.GameClass;
-import me.ampayne2.ultimategames.utils.UGUtils;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.players.classes.GameClass;
+import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;

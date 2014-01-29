@@ -1,10 +1,10 @@
 package me.ampayne2.hunter.classes;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.players.classes.GameClass;
-import me.ampayne2.ultimategames.utils.UGUtils;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.arenas.Arena;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.players.classes.GameClass;
+import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -34,7 +34,7 @@ public class HunterClass extends GameClass {
         player.getInventory().addItem(BOW, ARROW, COMPASS, UGUtils.createInstructionBook(game));
         player.updateInventory();
         final String playerName = player.getName();
-        Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {

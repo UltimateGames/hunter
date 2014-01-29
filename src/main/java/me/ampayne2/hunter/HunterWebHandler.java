@@ -1,9 +1,9 @@
 package me.ampayne2.hunter;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.arenas.Arena;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.arenas.Arena;
+import me.ampayne2.ultimategames.api.webapi.WebHandler;
 import me.ampayne2.ultimategames.gson.Gson;
-import me.ampayne2.ultimategames.webapi.WebHandler;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +21,7 @@ public class HunterWebHandler implements WebHandler {
     @Override
     public String sendResult() {
         Gson gson = new Gson();
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        Map<String, List<String>> map = new HashMap<>();
         map.put("civilians", ug.getTeamManager().getTeam(arena, "Civilian").getPlayers());
         map.put("hunters", ug.getTeamManager().getTeam(arena, "hunter").getPlayers());
         return gson.toJson(map);
