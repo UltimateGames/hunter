@@ -42,8 +42,8 @@ public class Hunter extends GamePlugin {
         this.game = game;
 
         ultimateGames.getGameClassManager()
-                .registerGameClass(new HunterClass(ultimateGames, game, "Hunter", false))
-                .registerGameClass(new CivilianClass(ultimateGames, game, "Civilian", false));
+                .registerGameClass(new HunterClass(ultimateGames, game, false))
+                .registerGameClass(new CivilianClass(ultimateGames, game, false));
 
         return true;
     }
@@ -110,7 +110,7 @@ public class Hunter extends GamePlugin {
         Team hunters = teamManager.getTeam(arena, "Hunters");
         teamManager.setPlayerTeam(theHunter, hunters);
         ultimateGames.getSpawnpointManager().getSpawnPoint(arena, 0).teleportPlayer(theHunter);
-        gameClassManager.getGameClass(game, "Hunter").addPlayer(theHunter);
+        gameClassManager.getGameClass(game, "Hunter").addPlayer(theHunter, true, false);
         ultimateGames.getMessenger().sendGameMessage(theHunter, game, "hunter");
 
         // Makes the rest of the players civilians, adding them to the scoreboard, setting their color to green, spawning the, and sending them a message.
@@ -257,7 +257,7 @@ public class Hunter extends GamePlugin {
                 civilians.removePlayer(player);
                 Team hunters = teamManager.getTeam(arena, "Hunters");
                 teamManager.setPlayerTeam(player, hunters);
-                ultimateGames.getGameClassManager().getGameClass(game, "Hunter").addPlayer(player);
+                ultimateGames.getGameClassManager().getGameClass(game, "Hunter").addPlayer(player, true, false);
                 ultimateGames.getMessenger().sendGameMessage(player, game, "hunter");
                 new ClosestPlayerInTeamCompassTracker(ultimateGames, player, arena, civilians);
 

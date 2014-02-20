@@ -20,8 +20,8 @@ public class HunterClass extends GameClass {
     private static final ItemStack ARROW = new ItemStack(Material.ARROW);
     private static final ItemStack COMPASS = new ItemStack(Material.COMPASS);
 
-    public HunterClass(UltimateGames ultimateGames, Game game, String name, boolean canSwitchToWithoutDeath) {
-        super(ultimateGames, game, name, canSwitchToWithoutDeath);
+    public HunterClass(UltimateGames ultimateGames, Game game, boolean canSwitchToWithoutDeath) {
+        super(ultimateGames, game, "Hunter", canSwitchToWithoutDeath);
         this.ultimateGames = ultimateGames;
         this.game = game;
     }
@@ -41,8 +41,10 @@ public class HunterClass extends GameClass {
                     Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
                     if (arena.getGame().equals(game) && ultimateGames.getTeamManager().getTeam(arena, "hunter").hasPlayer(playerName)) {
                         Player player = Bukkit.getPlayerExact(playerName);
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 2));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 2));
+                        UGUtils.removePotionEffect(player, PotionEffectType.SPEED);
+                        UGUtils.removePotionEffect(player, PotionEffectType.JUMP);
+                        UGUtils.increasePotionEffect(player, PotionEffectType.SPEED, 2);
+                        UGUtils.increasePotionEffect(player, PotionEffectType.JUMP, 2);
                     }
                 }
             }

@@ -14,8 +14,8 @@ public class CivilianClass extends GameClass {
     private static final ItemStack SWORD;
     private static final ItemStack APPLE = new ItemStack(Material.GOLDEN_APPLE);
 
-    public CivilianClass(UltimateGames ultimateGames, Game game, String name, boolean canSwitchToWithoutDeath) {
-        super(ultimateGames, game, name, canSwitchToWithoutDeath);
+    public CivilianClass(UltimateGames ultimateGames, Game game, boolean canSwitchToWithoutDeath) {
+        super(ultimateGames, game, "Civilian", canSwitchToWithoutDeath);
         this.game = game;
     }
 
