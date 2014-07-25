@@ -38,7 +38,7 @@ public class HunterClass extends GameClass {
             public void run() {
                 if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
                     Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-                    if (arena.getGame().equals(game) && ultimateGames.getTeamManager().getTeam(arena, "hunter").hasPlayer(playerName)) {
+                    if (arena.getGame().equals(game) && ultimateGames.getTeamManager().getTeam(arena, "Hunters").hasPlayer(playerName)) {
                         Player player = Bukkit.getPlayerExact(playerName);
                         UGUtils.removePotionEffect(player, PotionEffectType.SPEED);
                         UGUtils.removePotionEffect(player, PotionEffectType.JUMP);
